@@ -1,256 +1,341 @@
 # Vayu Vectors - OnCoLens AI
 # Cancer Detection AI
 
-online link : https://cancerdetectionai-vayuvectors.streamlit.app
-we reccommend using local run with .js frontend
+An AI/ML cancer image classification prototype that can train models from organized medical image folders and run predictions through a command-line tool, Streamlit dashboard, FastAPI backend, or Next.js frontend.
 
-An educational Streamlit app for training and testing image-based cancer detection models. The project supports multiple trained `.joblib` models and lets the user choose the correct model before uploading a medical image.
+## Project Overview
 
-The current app includes model selection, image quality checks, unsupported-image rejection, prediction history, readable evidence labels, and downloadable text reports.
+This project helps classify uploaded medical images into cancer-related categories such as brain, breast, lung, pancreatic, and prostate cancer. It includes reusable training, preprocessing, feature extraction, inference, and reporting modules.
 
-## Important Medical Notice
+The system is designed for experimentation and education. Users can add images into class-based dataset folders, train a scikit-learn model, save the trained model as a `.joblib` file, and use it for image prediction through multiple interfaces.
 
-This project is a research and education prototype only.
+Example classes:
 
-It is not clinically validated and must not be used for diagnosis, treatment decisions, or ruling out cancer. Always consult qualified medical professionals for real medical interpretation.
+- `no_cancer`
+- `brain_cancer`
+- `breast_cancer`
+- `lung_cancer`
+- `prostate_cancer`
+- `pancreatic_cancer`
+- `cancer` for mixed or unknown cancer images
 
-## Current Models
+The model saves a trained `.joblib` file that can be used from the command line or the Streamlit app.
 
-Trained using over 27 thousand images
-trained models placed inside the `models/` folder.
+## Tech Stack
+
+- **Programming language:** Python, TypeScript
+- **ML and data processing:** scikit-learn, NumPy, Pillow, pydicom, joblib
+- **Backend API:** FastAPI, Uvicorn
+- **Dashboard/UI:** Streamlit, Plotly, pandas
+- **Frontend:** Next.js, React, Tailwind CSS, Radix UI, lucide-react, Three.js
+- **Testing:** pytest
+- **Deployment config:** Render YAML
+
+## Medical Notice
+
+This is an educational prototype. It is not clinically validated and must not be used for real diagnosis, treatment, or ruling out cancer.
+
+## Architecture Summary
 
 ```text
-models/
-  Brain.joblib       Brain cancer model
-  Breast.joblib      Breast cancer model
-  Lung.joblib        Lung cancer model
-  pan.joblib         Pancreatic cancer model
-  pro.joblib         Prostate cancer model
+Medical image upload
+        |
+        v
+Preprocessing
+  - Load PNG/JPG/TIFF/BMP/DICOM files
+  - Normalize and resize image data
+        |
+        v
+Feature extraction
+  - Color, texture, contrast, density, and edge-based features
+        |
+        v
+Model inference
+  - Load trained .joblib model
+  - Predict class probabilities
+        |
+        v
+Reporting layer
+  - Confidence score
+  - Predicted class
+  - Evidence-style image metrics
+        |
+        v
+User interfaces
+  - CLI prediction script
+  - Streamlit dashboard
+  - FastAPI endpoint
+  - Next.js frontend
 ```
 
-The Streamlit dropdown is configured in `app.py`:
-
-```python
-MODEL_OPTIONS = {
-    "Brain cancer model": Path("models/Brain.joblib"),
-    "Breast cancer model": Path("models/Breast.joblib"),
-    "Lung cancer model": Path("models/Lung.joblib"),
-    "Pancreatic cancer model": Path("models/pan.joblib"),
-    "Prostate cancer model": Path("models/pro.joblib"),
-}
-```
-
-## Features
-
-- Select from multiple cancer models
-- Upload `.png`, `.jpg`, `.jpeg`, `.tif`, `.tiff`, `.bmp`, `.dcm`, or `.dicom` files
-- Reject random or unsupported images before prediction
-- Show confidence, cancer-cell likelihood, and reliability level
-- Display top class probabilities
-- Show readable image evidence such as texture complexity and image contrast
-- Keep recent prediction history in the sidebar
-- Download a text report for each prediction
-- Train new `.joblib` models locally or in Google Colab
+The core ML logic lives inside `src/cancer_detector/`. UI and delivery layers call this shared logic instead of duplicating prediction behavior.
 
 ## Project Structure
 
 ```text
-app.py                         Streamlit web app
+app.py                         Simple Streamlit image upload app
+dashboard.py                   Root Streamlit dashboard entry point
+api_server.py                  FastAPI backend server
 predict.py                     Command-line prediction script
+predict_json.py                JSON prediction script
 train_model.py                 Training entry point
 colab_training.ipynb           Google Colab training notebook
-requirements.txt               App dependencies
-requirements-train.txt         Smaller Colab training dependency list
-models/                        Trained .joblib model files
-dataset/                       Optional local training dataset
-tests/                         Pipeline tests
+requirements.txt               Python app/API dependencies
+requirements-train.txt         Smaller dependency list for Colab training
+render.yaml                    Render deployment configuration
+models/                        Saved .joblib model files
+tests/                         Automated tests
+frontend/                      Streamlit multi-page dashboard modules
+nextjs-frontend/               Next.js frontend application
+dataset/
+  no_cancer/                   Put non-cancer images here
+    mri/
+    ct/
+    pet/
+  brain_cancer/                Put brain cancer images here
+    mri/
+  breast_cancer/               Put breast cancer images here
+    mri/
+    pet/
+  lung_cancer/                 Put lung cancer images here
+    ct/
+    pet/
+  prostate_cancer/             Put prostate cancer images here
+    mri/
+    histopathology/
+  pancreatic_cancer/           Put pancreatic cancer images here
+    ct/
+    mri/
+    histopathology/
 src/cancer_detector/
-  config.py                    Cancer class display metadata
-  preprocessing.py             Image and DICOM loading
+  config.py                    Labels and display text
+  preprocessing.py             Image loading and resizing
   feature_extractor.py         Image feature extraction
-  models.py                    Model loading and prediction wrapper
-  training.py                  Dataset extraction and training logic
+  models.py                    Trained model loader and fallback model
+  training.py                  Dataset loading and model training
   inference.py                 Prediction pipeline
-  reporting.py                 Basic report helpers
+  reporting.py                 Text and app output
 ```
 
 ## Dataset Format
 
-Training data must be arranged with one top-level folder per class. The folder name becomes the model label.
-
-Example for lung cancer:
+Put images into one folder per class:
 
 ```text
 dataset/
   no_cancer/
-    Normal case (1).jpg
-    Normal case (2).jpg
-  lung_cancer/
-    Malignant case (1).jpg
-    Malignant case (2).jpg
-```
-
-Subfolders are allowed for organization:
-
-```text
-dataset/
-  no_cancer/
+    mri/
+      normal_mri_1.dcm
     ct/
-      normal_1.png
+      normal_ct_1.png
+    pet/
+      normal_pet_1.jpg
+  brain_cancer/
+    mri/
+      brain_mri_1.dcm
+  leukemia/
+    blood_smear/
+      leukemia_blood_1.png
+    bone_marrow_smear/
+      leukemia_marrow_1.png
+  breast_cancer/
+    mri/
+      breast_mri_1.dcm
+    pet/
+      breast_pet_1.png
+  lung_cancer/
+    ct/
+      lung_ct_1.dcm
+    pet/
+      lung_pet_1.png
+  prostate_cancer/
+    mri/
+      prostate_mri_1.dcm
   pancreatic_cancer/
     ct/
-      pancreas_ct_1.png
-    mri/
-      pancreas_mri_1.png
-    histopathology/
-      pancreas_slide_1.jpg
+      pancreas_ct_1.dcm
+  kidney_cancer/
+    ct/
+      kidney_ct_1.dcm
+  bladder_cancer/
+    cystoscopy/
+      bladder_cystoscopy_1.jpg
+  skin_melanoma/
+    dermoscopy/
+      melanoma_dermoscopy_1.jpg
 ```
 
-Supported image types:
+The top-level folder name is the label the model learns. The scan/image-source folders below it are only for organization; they are not treated as labels.
+
+Supported image types: `.png`, `.jpg`, `.jpeg`, `.tif`, `.tiff`, `.bmp`, `.dcm`, `.dicom`.
+
+Each class needs at least 2 images. For useful results, use many more and keep a mix of lighting, magnification, stain, and cell appearance.
+
+## Train In Google Colab
+
+Use `colab_training.ipynb` for the easiest Colab workflow.
+
+Your dataset zip should contain class folders:
 
 ```text
-.png, .jpg, .jpeg, .tif, .tiff, .bmp, .dcm, .dicom
+dataset.zip
+  dataset/
+    no_cancer/
+      mri/
+        normal_mri_1.dcm
+      ct/
+        normal_ct_1.png
+    brain_cancer/
+      mri/
+        brain_mri_1.dcm
+    leukemia/
+      blood_smear/
+        leukemia_blood_1.png
+    breast_cancer/
+      mri/
+        breast_mri_1.dcm
 ```
 
-Each class needs at least 2 images. For useful results, use many more images and keep the image type consistent with the selected model.
+In Colab:
 
-## Local Setup
+1. Upload this project folder or notebook to Colab.
+2. Run the install cell.
+3. Upload your `dataset.zip`.
+4. Run the training cell.
+5. Download `models/cancer_classifier.joblib`.
 
-From the project root:
+Manual Colab command:
 
 ```bash
-cd "Cancer detection"
+pip install -r requirements-train.txt
+python train_model.py --zip-data dataset.zip --output models/cancer_classifier.joblib
+```
+
+The trainer automatically extracts the zip and finds the folder that contains at least two populated class folders.
+
+## Setup Instructions
+
+### 1. Clone or Open the Project
+
+```bash
+cd Cancer_Detection_Final-main
+```
+
+### 2. Create a Python Environment
+
+```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Run The App
+### 3. Verify the Python Pipeline
 
 ```bash
-cd "Cancer detection"
-source .venv/bin/activate
-streamlit run app.py
+python -m pytest
 ```
 
-Then open the local Streamlit URL shown in the terminal, usually:
+### 4. Train or Use an Existing Model
+
+Train a new model:
+
+```bash
+python train_model.py --data dataset --output models/cancer_classifier.joblib
+```
+
+Or use the existing model files in `models/`.
+
+### 5. Run the Streamlit App
+
+```bash
+streamlit run app.py -- --model models/cancer_classifier.joblib
+```
+
+For the full dashboard:
+
+```bash
+streamlit run dashboard.py
+```
+
+### 6. Run the FastAPI Backend
+
+```bash
+uvicorn api_server:app --reload
+```
+
+API health check:
 
 ```text
-http://localhost:8501
+http://127.0.0.1:8000/health
 ```
 
-## Train Locally
+Prediction endpoint:
 
-Train from a local `dataset/` folder:
+```text
+POST http://127.0.0.1:8000/api/v1/predict
+```
+
+### 7. Run the Next.js Frontend
 
 ```bash
-cd "Cancer detection"
+cd nextjs-frontend
+npm install
+npm run dev
+```
+
+Open:
+
+```text
+http://localhost:3000
+```
+
+## Local Training
+
+```bash
 source .venv/bin/activate
 python train_model.py --data dataset --output models/cancer_classifier.joblib
 ```
 
-Train a specific model file:
+The trainer prints accuracy, image counts, and a validation report.
+
+## Predict From Command Line
 
 ```bash
-python train_model.py --data dataset --output models/Lung.joblib
-python train_model.py --data dataset --output models/pan.joblib
-python train_model.py --data dataset --output models/pro.joblib
+python predict.py path/to/test-image.png --model models/cancer_classifier.joblib
 ```
 
-The trainer prints accuracy, class names, image counts, and a validation report.
-
-## Train In Google Colab
-
-Use `colab_training.ipynb` for the easiest workflow.
-
-Manual Colab steps:
-
-1. Upload the project files to Colab.
-2. Upload a dataset zip such as `lung.zip`.
-3. Install training dependencies:
-
-```python
-!pip -q install -r requirements-train.txt
-```
-
-4. Train from the zip:
-
-```python
-!python train_model.py --zip-data "lung.zip" --output models/Lung.joblib
-```
-
-For pancreatic cancer:
-
-```python
-!python train_model.py --zip-data "pancreatic.zip" --output models/pan.joblib
-```
-
-For prostate cancer:
-
-```python
-!python train_model.py --zip-data "prostate.zip" --output models/pro.joblib
-```
-
-5. Download the trained model:
-
-```python
-from google.colab import files
-files.download("models/Lung.joblib")
-```
-
-The trainer automatically extracts the zip and finds a dataset folder with at least two populated class folders.
-
-## Command-Line Prediction
+## Run The App
 
 ```bash
-cd "Cancer detection"
-source .venv/bin/activate
-python predict.py path/to/image.png --model models/Lung.joblib
+streamlit run app.py -- --model models/cancer_classifier.joblib
 ```
 
-## Adding A New Model To The App
+Upload an image and the app will show the predicted class, confidence, cancer-cell likelihood, and extracted image evidence.
 
-1. Put the trained file in `models/`.
+## Team Members
 
-Example:
+| Name | Role |
+| --- | --- |
+| Niranjan K | Frontend Dev |
+| Sourav P P | Backend/API development |
+| Sanjana  | Reasearch |
+| Nishanth R Gowda | Dataset Provider |
+| Manikanta J N | PPT |
+
+## Demo Screenshot
+
+Add the final application screenshot at:
 
 ```text
-models/kidney.joblib
+docs/demo-screenshot.png
 ```
 
-2. Add it to `MODEL_OPTIONS` in `app.py`:
+Then uncomment or update this image link in the README:
 
-```python
-"Kidney cancer model": Path("models/kidney.joblib"),
+```markdown
+![Cancer Detection Demo](docs/demo-screenshot.png)
 ```
 
-3. Add guidance to `MODEL_GUIDANCE`:
-
-```python
-"Kidney cancer model": "Upload kidney CT, MRI, or histopathology medical images.",
-```
-
-4. Restart Streamlit.
-
-## Troubleshooting
-
-If training says no supported images were found, check the folder layout:
-
-```bash
-find dataset -maxdepth 2 -type f | head
-find dataset/no_cancer -type f | head
-find dataset/lung_cancer -type f | head
-```
-
-If `dataset/lung_cancer` does not exist, train from the zip instead:
-
-```bash
-python train_model.py --zip-data lung.zip --output models/Lung.joblib
-```
-
-If the app shows an unsupported-image message, the uploaded image probably does not match the selected model type. Choose the correct model or upload a scan/pathology image similar to the training data.
-
-If a cancer image is predicted as `no_cancer`, improve the dataset and retrain. Use more cancer examples from the same image type, reduce mismatch between training and testing images, and verify that the correct model is selected.
 
 ## Notes On Accuracy
 

@@ -13,7 +13,7 @@ app.add_middleware(
 
 @app.get("/")
 def root():
-    return {"message": "Cancer Detection API is running"}
+    return {"message": "Cancer Detection API is running successfully"}
 
 @app.get("/health")
 def health():

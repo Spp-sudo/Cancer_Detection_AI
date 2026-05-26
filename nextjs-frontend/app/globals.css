@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+:root {
+  --ol-bg-deep: #0c0414;
+  --ol-bg-mid: #0a1628;
+  --ol-glass: rgba(12, 28, 48, 0.55);
+  --ol-glass-border: rgba(120, 200, 255, 0.18);
+  --ol-text: #e8f4fc;
+  --ol-muted: #7a9bb8;
+  --ol-accent: #5eb3ff;
+  --ol-accent-user: #4dffc9;
+  --ol-radius: 16px;
+  --background: var(--ol-bg-deep);
+  --foreground: var(--ol-text);
+}
+
+body {
+  background: var(--ol-bg-deep);
+  color: var(--ol-text);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+@keyframes ol-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes ol-float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
+}
+@keyframes ol-drift {
+  0%   { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(3%, 4%) scale(1.08); }
+}
+@keyframes ol-spin-slow { to { transform: rotate(360deg); } }
+@keyframes ol-pulse { 0%,100%{opacity:.4} 50%{opacity:.9} }
+
+.animate-fade-in  { animation: ol-fade-in 0.5s ease both; }
+.animate-float    { animation: ol-float 6s ease-in-out infinite; }
+.animate-spin-slow{ animation: ol-spin-slow 8s linear infinite; }
+.animate-pulse-soft{ animation: ol-pulse 2s ease infinite; }

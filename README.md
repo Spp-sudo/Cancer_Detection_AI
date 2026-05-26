@@ -1,6 +1,9 @@
 # Vayu Vectors - OnCoLens AI
 # Cancer Detection AI
 
+online link : https://cancerdetectionai-vayuvectors.streamlit.app
+we reccommend using local run with .js frontend
+
 An educational Streamlit app for training and testing image-based cancer detection models. The project supports multiple trained `.joblib` models and lets the user choose the correct model before uploading a medical image.
 
 The current app includes model selection, image quality checks, unsupported-image rejection, prediction history, readable evidence labels, and downloadable text reports.

@@ -324,17 +324,11 @@ Upload an image and the app will show the predicted class, confidence, cancer-ce
 
 ## Demo Screenshot
 
-Add the final application screenshot at:
+<img width="1600" height="837" alt="WhatsApp Image 2026-05-26 at 9 45 42 AM" src="https://github.com/user-attachments/assets/f3bdc353-102f-43f7-82ef-cd701031c67a" />
+<img width="1600" height="804" alt="WhatsApp Image 2026-05-26 at 9 44 46 AM" src="https://github.com/user-attachments/assets/b3cfe20b-1e78-4746-9202-e105d4b861dd" />
+<img width="1600" height="781" alt="WhatsApp Image 2026-05-26 at 9 43 44 AM" src="https://github.com/user-attachments/assets/582d8f07-3020-49f2-9b10-af701d0c276b" />
+<img width="1600" height="780" alt="WhatsApp Image 2026-05-26 at 9 43 19 AM" src="https://github.com/user-attachments/assets/e7a35fd1-28a9-4509-85d1-a9d4c5b39727" />
 
-```text
-docs/demo-screenshot.png
-```
-
-Then uncomment or update this image link in the README:
-
-```markdown
-![Cancer Detection Demo](docs/demo-screenshot.png)
-```
 
 
 ## Notes On Accuracy
